@@ -80,4 +80,67 @@ b <- ggplot(data = d, mapping = aes(x = Trophic.Niche, y = blcRes)) +
 
 plot_grid(a, b)
 
-#Step 3 
+#Step 3, anova on range size and migration
+#Dist of range.size is wack, log() it
+d <- d |>
+  drop_na(Migration) |>
+  mutate(logRange = log(Range.Size))
+rangM1 <- lm(logRange ~ Migration, data = d)
+summary(rangM)
+
+#Releveling to see whats different
+d$Migration <- relevel(d$Migration, ref = 2)
+rangM2 <- lm(logRange ~ Migration, data = d)
+summary(rangM2)
+
+d$Migration <- relevel(d$Migration, ref = 3)
+rangM3 <- lm(logRange ~ Migration, data = d)
+summary(rangM3)
+
+#Relevel back to og
+d$Migration <- relevel(d$Migration, ref = 1)
+#Tukey HSD
+rangM_aov <- aov(logRange ~ Migration, data = d)
+rangeM_THSD <- TukeyHSD(rangM_aov, which = "Migration", conf.level = 0.95)
+
+#Step 4, Passeriformes analysis
+dp <- d |>
+  filter(Order1 == "Passeriformes")
+Paov1 <- aov(blcRes ~ Primary.Lifestyle, data = dp)
+Paov2 <- aov(blcRes ~ Trophic.Level, data = dp)
+p1 <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
+  geom_boxplot() +
+  ggtitle("Rel Beak Length:Primary Lifestyle")
+p2 <- ggplot(data = dp, mapping = aes(x = Trophic.Level, y = blcRes)) +
+  geom_boxplot() +
+  ggtitle("Rel Beak Length:Trophic Level")
+plot_grid(p1, p2)
+
+dp <- dp |>
+  mutate(PL.TL = paste(Primary.Lifestyle, Trophic.Level))
+p3 <- ggplot(data = dp, mapping = aes(x = PL.TL, y = blcRes)) +
+  geom_boxplot() +
+  ggtitle("Rel Beak Length: Lifestyle & Trophic Level")
+
+Plm1 <- lm(blcRes ~ Primary.Lifestyle, data = dp)
+summary(Plm1)
+Plm2 <- lm(blcRes ~ Trophic.Level, data = dp)
+summary(Plm2)
+
+#Step 5, two factor model
+P2wayaov <- aov(data = dp, blcRes ~ Primary.Lifestyle + Trophic.Level)
+summary(P2wayaov)
+
+#Step 6, two factor with interaction
+PaovInteraction <- aov(data = dp, 
+                       blcRes ~ Primary.Lifestyle + Trophic.Level + Primary.Lifestyle:Trophic.Level)
+summary(PaovInteraction)
+
+#Step 7, interaction plot, visuzalise interaction between PL and TL
+interaction.plot(x.factor= dp$Primary.Lifestyle, xlab = "Primary Lifestyle", trace.factor = dp$Trophic.Level,
+                 trace.label = "Trophic Level", fun = base::mean, response = dp$blcRes, ylab = "Relative Beak Length")
+
+#Step 8, comparing largest and smallest within-grouping level sd
+#useing for "equal" variances
+Plm1$residuals
+Plm1var <- max(Plm1$residuals)/min(Plm1$residuals)
