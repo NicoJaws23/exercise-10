@@ -44,7 +44,7 @@ m2aov <- aov(log(Mass) ~ Migration, data = d)
 posthoc <- TukeyHSD(m2aov, which = "Migration", conf.level = 0.95)
 
 #Step 4, F-stat perm w/ {infer}
-original.F <- aov(aov(log(Mass) ~ Trophic.Level, data = df)) |>
+original.F <- aov(log(Mass) ~ Trophic.Level, data = d) |>
   broom::tidy()|>
   filter(term == "Trophic.Level")
 original.F #F stat is "statistic"
@@ -86,7 +86,7 @@ d <- d |>
   drop_na(Migration) |>
   mutate(logRange = log(Range.Size))
 rangM1 <- lm(logRange ~ Migration, data = d)
-summary(rangM)
+summary(rangM1)
 
 #Releveling to see whats different
 d$Migration <- relevel(d$Migration, ref = 2)
