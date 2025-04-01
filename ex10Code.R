@@ -64,22 +64,22 @@ p.value <- permuted.F |>
 
 #Challenge 2
 #Step 1 Calculate residules
-m3 <- lm(Beak.Length_CulmenLog ~ log(Mass), data = d)
-m4 <- lm(Tarsus.LengthLog ~ log(Mass), data = d)
+m3 <- lm(log(Mass) ~ Beak.Length_CulmenLog, data = d)
+m4 <- lm(log(Mass) ~ Tarsus.LengthLog, data = d)
 d <- d |>
   mutate(blcRes = m3$residuals, tlRes = m4$residuals)
+
 
 #Step 2 plots
 a <- ggplot(data = d, mapping = aes(x = Primary.Lifestyle, y = tlRes)) +
   geom_boxplot() +
-  ggtitle("log(Tarsus Length) Residules and Primary Lifestyle")
+  ggtitle("Relative Tarsus Length and Primary Lifestyle")
 
 b <- ggplot(data = d, mapping = aes(x = Trophic.Niche, y = blcRes)) +
   geom_boxplot() +
-  ggtitle("log(Beak Length Culmen) Residules and Trophic Niche")
+  ggtitle("Relative Beak Length and Trophic Niche")
 
 plot_grid(a, b)
-
 #Step 3, anova on range size and migration
 #Dist of range.size is wack, log() it
 d <- d |>

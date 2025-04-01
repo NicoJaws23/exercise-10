@@ -6,7 +6,11 @@ editor: visual
 
 # Exercise 10, Practice ANOVA
 
+In this exercise I will use the AVONET data set to practice using ANOVA and checking models.
+
 ## Set up: Libraries and Data Wrangling
+
+Before starting the challenges, I need to load in my libraries and the data. Additionally, I need to filter down my data to the 19 variables of interest. Additionally, I will convert Migration to a factor and create 2 new variables to be the logged values of Beak.Length_Culmen and Tarsus.Length as I will need these converted values for later analysis.
 
 ```{r}
 #| message: false
@@ -30,19 +34,23 @@ d <- d |>
 
 ## Challenge 1
 
+In this first challenge I will be looking at the relationships of different variables to the logged mass of the birds in the data set.
+
 ### Step 1
 
+In this first step, I am doing some initial visualization to examine the relationship log(Mass) has with variables Trophic.Level and Migration behavior. I store each plot as a variable and call them in the plot_grid() function from the {cowplot} function to visualize these plots next to each other.
+
 ```{r}
+#| message: false
+#| warning: false
 #trophic level in relation to log(Mass)
 tlM <- ggplot(data = d |> drop_na(Trophic.Level), aes(x = Trophic.Level, y = log(Mass))) +
   geom_boxplot() +
-  geom_jitter() +
   ggtitle("log(Mass) and Trophic Level")
 
 #Migration (as factor) in relation to log(Mass)
 mm <- ggplot(data = d |> drop_na(Migration), aes(x = Migration, y = log(Mass))) +
   geom_boxplot() +
-  geom_jitter() +
   ggtitle("log(Mass) and Migration")
 
 plot_grid(tlM, mm)
@@ -50,26 +58,54 @@ plot_grid(tlM, mm)
 
 ### Step 2
 
+Next, I will run two models using the lm() function.. The first model is the relationship between log(Mass) and Trophic.Level, and the second model looks at the relationship between log(Mass) and Migration behavior.
+
+Based on the F-statistic for each model (78.42 and 144.5 respectively) we can reject the null hypothesis of a F-statistic of 0, indicating that the variance in log(Mass) between trophic.level and migration behavior groups is significant.
+
+Based on the regression coefficients for the Migration model, both levels 2 and 3 are different from the reference level, which is 1. Using relevel() to change the reference level and rerun the model reveals that when level 2 is the reference level (m2.2), levels 1 and 3 differ from the reference level. Additionally when level 3 is the reference level (m2.3), levels 1 and 2 differ from it.
+
 ```{r}
+#| message: false
+#| warning: false
 #Mass and trophic level model
 m1 <- lm(log(Mass) ~ Trophic.Level, data = d)
 summary(m1)
-#Madd and Migration model
+#Mass and Migration model
 m2 <- lm(log(Mass) ~ Migration, data = d)
 summary(m2)
+#Releveling migration levels
+d$Migration <- relevel(d$Migration, ref = 2)
+m2.2 <- lm(log(Mass) ~ Migration, data = d)
+summary(m2.2)
+
+d$Migration <- relevel(d$Migration, ref = 3)
+m2.3 <- lm(log(Mass) ~ Migration, data = d)
+summary(m2.3)
+
+#Reset reference level
+d$Migration <- relevel(d$Migration, ref = 1)
 ```
 
 ### Step 3
 
+Now I will conduct a post-hoc test to determine if there is significant differences between the three migration categories as they relate to log(Mass). I do this with the Tukey Honest Significant Differences Test which compares each possible pair of variables and produces an adjusted p-value for how much they differ from each other. Based on the adjusted p-values, which are all 0, each of the three levels differ significantly from each other. Additionally, by plotting the confidence intervals, we can confirm this differences because none of the confidence intervals intersect with 0.
+
 ```{r}
+#| message: false
+#| warning: false
 m2aov <- aov(log(Mass) ~ Migration, data = d)
 posthoc <- TukeyHSD(m2aov, which = "Migration", conf.level = 0.95)
 posthoc
+plot(posthoc, xlim = c(-2, 2))
 ```
 
 ### Step 4
 
+Next I will use a permutation approach with tools from the {infer} package to generate a null distribution of F-statistic values for the log(Mass) in relation to Trophic.Level model. This allows us to test our model and again confirm that the differences between the relationship of each trophic.level group to log(Mass) is significant. Based on the {infer} tools, the p-value is significant, as it is very small. By plotting the p-value on the null distribution and then by using the get_p_value() function, we see that the difference is very significant.
+
 ```{r}
+#| message: false
+#| warning: false
 #Origin F stat
 original.F <- aov(log(Mass) ~ Trophic.Level, data = d) |>
   broom::tidy()|>
@@ -87,37 +123,55 @@ visualize(permuted.F) +
   shade_p_value(obs_stat = original.F$statistic, direction = "greater")
 p.value <- permuted.F |>
   get_p_value(obs_stat = original.F$statistic, direction = "greater")
-
+p.value
 ```
 
 ## Challenge 2
 
+In this next challenge, we will use one- and two-factor anovas on some newly produced variables.
+
 ### Step 1
 
+First, we will create these new variables, which will be relative beak length and relative tarsus length. These will be calculated based on the residuals of these two variables logged in relation to log(Mass).
+
 ```{r}
-m3 <- lm(Beak.Length_CulmenLog ~ log(Mass), data = d)
-m4 <- lm(Tarsus.LengthLog ~ log(Mass), data = d)
+#| message: false
+#| warning: false
+m3 <- lm(log(Mass) ~ Beak.Length_CulmenLog, data = d)
+m4 <- lm(log(Mass) ~ Tarsus.LengthLog, data = d)
 d <- d |>
   mutate(blcRes = m3$residuals, tlRes = m4$residuals)
 ```
 
 ### Step 2
 
+Next, I will make some boxplots. The first will plot relative tarsus length in relation to Primary.Lifestyle and the second will be relative beak length in relation to Trophic.Niche. I will again store these plots as variable and then use the plot_grid() function to view them together
+
 ```{r}
+#| message: false
+#| warning: false
 a <- ggplot(data = d, mapping = aes(x = Primary.Lifestyle, y = tlRes)) +
   geom_boxplot() +
-  ggtitle("log(Tarsus Length) Residules and Primary Lifestyle")
+  ggtitle("Relative Tarsus Length and Primary Lifestyle")
 
 b <- ggplot(data = d, mapping = aes(x = Trophic.Niche, y = blcRes)) +
   geom_boxplot() +
-  ggtitle("log(Beak Length Culmen) Residules and Trophic Niche")
+  ggtitle("Relative Beak Length and Trophic Niche")
 
 plot_grid(a, b)
 ```
 
 ### Step 3
 
+Next, I will run some ANOVAs to see how range size is associated with Migration. First, I will remove all missing migration observations and log transform the range size variable since it is not normally distributed.
+
+Based on the global model, range size is associated with Migration behavior style (F-stat = 520.3, p \< 0.001) and the R-squared value indicates that 8.69% of variance is associated with Migration.
+
+Migration categories 2 and 3 both differ significantly from the reference level which is category 1. After re-leveling, we see the same relationship when the reference level is 2 or 3, showing significant differences across the three categories. This is reinforced again when we run a Tukey Honest Significant Differences test and plot the confidence intervals.
+
 ```{r}
+#| message: false
+#| warning: false
 d <- d |>
   drop_na(Migration) |>
   mutate(logRange = log(Range.Size))
@@ -138,15 +192,25 @@ d$Migration <- relevel(d$Migration, ref = 1)
 #Tukey HSD
 rangM_aov <- aov(logRange ~ Migration, data = d)
 rangeM_THSD <- TukeyHSD(rangM_aov, which = "Migration", conf.level = 0.95)
+rangeM_THSD
+plot(rangeM_THSD, xlim = c(-3, 3))
 ```
 
 ### Step 4
 
+Now I will look at birds specifically in the infraorder "Passeriformes". I will run two one-factor ANOVAs, one looking at the association between relative beak length and primary lifestyle, and another looking at the association between relative beak length and trophic level. In doing so, I will make three boxplots which look at how each variable relates to relative beak length separately and one with them together. I will also run linear models for each predictor. Based on the linear models, both primary lifestyle (all 4 levels) and trophic level (all 3 levels) are associated with variance in beak length.
+
 ```{r}
+#| message: false
+#| warning: false
 dp <- d |>
   filter(Order1 == "Passeriformes")
+
 Paov1 <- aov(blcRes ~ Primary.Lifestyle, data = dp)
+summary(Paov1)
 Paov2 <- aov(blcRes ~ Trophic.Level, data = dp)
+summary(Paov2)
+
 p1 <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
   geom_boxplot() +
   ggtitle("Rel Beak Length:Primary Lifestyle")
@@ -170,14 +234,22 @@ summary(Plm2)
 
 ### Step 5
 
+Now, I will run a two-factor anova to see how these two predictors associate with relative beak length. Based on the output, I would conclude that differences in relative beak length can be explained by each species primary lifestyle and trophic level.
+
 ```{r}
+#| message: false
+#| warning: false
 P2wayaov <- aov(data = dp, blcRes ~ Primary.Lifestyle + Trophic.Level)
 summary(P2wayaov)
 ```
 
 ### Step 6
 
+Now I will run another two-factor anova but I will add an interaction term to see how the interaction of lifestyle and trophic level explains beak length. Based on the output, the interaction of these two variables has a significant effect on relative beak length.
+
 ```{r}
+#| message: false
+#| warning: false
 PaovInteraction <- aov(data = dp, 
                        blcRes ~ Primary.Lifestyle + Trophic.Level + Primary.Lifestyle:Trophic.Level)
 summary(PaovInteraction)
@@ -185,13 +257,21 @@ summary(PaovInteraction)
 
 ### Step 7
 
+Now I will create an interaction plot to visualize the interaction between the predictors.
+
 ```{r}
+#| message: false
+#| warning: false
 interaction.plot(x.factor= dp$Primary.Lifestyle, xlab = "Primary Lifestyle", trace.factor = dp$Trophic.Level,
                  trace.label = "Trophic Level", fun = base::mean, response = dp$blcRes, ylab = "Relative Beak Length")
 ```
 
 ### Step 8
 
+As a final step, I will determine if the variances across the groups in the different models are roughly equal.
+
 ```{r}
+#| message: false
+#| warning: false
 
 ```
