@@ -137,8 +137,8 @@ First, we will create these new variables, which will be relative beak length an
 ```{r}
 #| message: false
 #| warning: false
-m3 <- lm(log(Mass) ~ Beak.Length_CulmenLog, data = d)
-m4 <- lm(log(Mass) ~ Tarsus.LengthLog, data = d)
+m3 <- lm(Beak.Length_CulmenLog ~ log(Mass), data = d)
+m4 <- lm(Tarsus.LengthLog ~ log(Mass), data = d)
 d <- d |>
   mutate(blcRes = m3$residuals, tlRes = m4$residuals)
 ```
@@ -173,7 +173,6 @@ Migration categories 2 and 3 both differ significantly from the reference level 
 #| message: false
 #| warning: false
 d <- d |>
-  drop_na(Migration) |>
   mutate(logRange = log(Range.Size))
 rangM1 <- lm(logRange ~ Migration, data = d)
 summary(rangM1)
@@ -205,11 +204,6 @@ Now I will look at birds specifically in the infraorder "Passeriformes". I will 
 #| warning: false
 dp <- d |>
   filter(Order1 == "Passeriformes")
-
-Paov1 <- aov(blcRes ~ Primary.Lifestyle, data = dp)
-summary(Paov1)
-Paov2 <- aov(blcRes ~ Trophic.Level, data = dp)
-summary(Paov2)
 
 p1 <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
   geom_boxplot() +

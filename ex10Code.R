@@ -64,30 +64,37 @@ p.value <- permuted.F |>
 
 #Challenge 2
 #Step 1 Calculate residules
-m3 <- lm(log(Mass) ~ Beak.Length_CulmenLog, data = d)
-m4 <- lm(log(Mass) ~ Tarsus.LengthLog, data = d)
+m3 <- lm(Beak.Length_CulmenLog ~ log(Mass), data = d)
+m4 <- lm(Tarsus.LengthLog ~ log(Mass), data = d)
 d <- d |>
-  mutate(blcRes = m3$residuals, tlRes = m4$residuals)
+  mutate(blcRes = m3$residuals, tlRes = m4$residuals) |>
+  mutate(Primary.Lifestyle = factor(Primary.Lifestyle, levels = c("Aerial", "Aquatic",
+  "Insessorial", "Terrestrial", "Generalist"))) |>
+  mutate(Trophic.Niche = factor(Trophic.Niche, levels = c("Nectarivore", "Herbivore aquatic", "Frugivre", "Granivore", 
+                                                          "Herbivore terrestrial", "Aquatic predator", "Invertivore", "Vertivore", "Scavenger",
+                                                          "Omnivore")))
 
 
 #Step 2 plots
 a <- ggplot(data = d, mapping = aes(x = Primary.Lifestyle, y = tlRes)) +
   geom_boxplot() +
-  ggtitle("Relative Tarsus Length and Primary Lifestyle")
+  ggtitle("Relative Tarsus Length and Primary Lifestyle") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-b <- ggplot(data = d, mapping = aes(x = Trophic.Niche, y = blcRes)) +
+b <- ggplot(data = d |> drop_na(Trophic.Niche), mapping = aes(x = Trophic.Niche, y = blcRes)) +
   geom_boxplot() +
-  ggtitle("Relative Beak Length and Trophic Niche")
+  ggtitle("Relative Beak Length and Trophic Niche") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_grid(a, b)
 #Step 3, anova on range size and migration
 #Dist of range.size is wack, log() it
 d <- d |>
-  drop_na(Migration) |>
   mutate(logRange = log(Range.Size))
+
+d$Migration <- relevel(d$Migration, ref = 1)
 rangM1 <- lm(logRange ~ Migration, data = d)
 summary(rangM1)
-
 #Releveling to see whats different
 d$Migration <- relevel(d$Migration, ref = 2)
 rangM2 <- lm(logRange ~ Migration, data = d)
@@ -106,8 +113,7 @@ rangeM_THSD <- TukeyHSD(rangM_aov, which = "Migration", conf.level = 0.95)
 #Step 4, Passeriformes analysis
 dp <- d |>
   filter(Order1 == "Passeriformes")
-Paov1 <- aov(blcRes ~ Primary.Lifestyle, data = dp)
-Paov2 <- aov(blcRes ~ Trophic.Level, data = dp)
+
 p1 <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
   geom_boxplot() +
   ggtitle("Rel Beak Length:Primary Lifestyle")
@@ -121,6 +127,7 @@ dp <- dp |>
 p3 <- ggplot(data = dp, mapping = aes(x = PL.TL, y = blcRes)) +
   geom_boxplot() +
   ggtitle("Rel Beak Length: Lifestyle & Trophic Level")
+p3
 
 Plm1 <- lm(blcRes ~ Primary.Lifestyle, data = dp)
 summary(Plm1)
