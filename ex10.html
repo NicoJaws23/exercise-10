@@ -108,16 +108,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cowplot)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(infer)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Still using bird data</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/difiore/ada-datasets/refs/heads/main/AVONETdataset1.csv"</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(f, <span class="at">col_names =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Species1, Family1, Order1, Beak.Length_Culmen, Beak.Width, Beak.Depth, </span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>         Tarsus.Length, Wing.Length, Tail.Length, Mass, Habitat, Migration, Trophic.Level, </span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>         Trophic.Niche, Min.Latitude, Max.Latitude, Centroid.Latitude, Primary.Lifestyle, Range.Size) <span class="sc">|&gt;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Migration =</span> <span class="fu">as.factor</span>(Migration)) <span class="sc">|&gt;</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Beak.Length_CulmenLog =</span> <span class="fu">log</span>(Beak.Length_Culmen), <span class="at">Tarsus.LengthLog =</span> <span class="fu">log</span>(Tarsus.Length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/difiore/ada-datasets/refs/heads/main/AVONETdataset1.csv"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(f, <span class="at">col_names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Species1, Family1, Order1, Beak.Length_Culmen, Beak.Width, Beak.Depth, </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>         Tarsus.Length, Wing.Length, Tail.Length, Mass, Habitat, Migration, Trophic.Level, </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>         Trophic.Niche, Min.Latitude, Max.Latitude, Centroid.Latitude, Primary.Lifestyle, Range.Size) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Migration =</span> <span class="fu">as.factor</span>(Migration)) <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Beak.Length_CulmenLog =</span> <span class="fu">log</span>(Beak.Length_Culmen), <span class="at">Tarsus.LengthLog =</span> <span class="fu">log</span>(Tarsus.Length))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="challenge-1" class="level2">
@@ -338,8 +337,8 @@ $Migration
 <h3 class="anchored" data-anchor-id="step-1-1">Step 1</h3>
 <p>First, we will create these new variables, which will be relative beak length and relative tarsus length. These will be calculated based on the residuals of these two variables logged in relation to log(Mass).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(Mass) <span class="sc">~</span> Beak.Length_CulmenLog, <span class="at">data =</span> d)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>m4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(Mass) <span class="sc">~</span> Tarsus.LengthLog, <span class="at">data =</span> d)</span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Beak.Length_CulmenLog <span class="sc">~</span> <span class="fu">log</span>(Mass), <span class="at">data =</span> d)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>m4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Tarsus.LengthLog <span class="sc">~</span> <span class="fu">log</span>(Mass), <span class="at">data =</span> d)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">blcRes =</span> m3<span class="sc">$</span>residuals, <span class="at">tlRes =</span> m4<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -373,8 +372,8 @@ $Migration
 <p>Migration categories 2 and 3 both differ significantly from the reference level which is category 1. After re-leveling, we see the same relationship when the reference level is 2 or 3, showing significant differences across the three categories. This is reinforced again when we run a Tukey Honest Significant Differences test and plot the confidence intervals.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(Migration) <span class="sc">|&gt;</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logRange =</span> <span class="fu">log</span>(Range.Size))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logRange =</span> <span class="fu">log</span>(Range.Size))</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Migration and Geographic range</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>rangM1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(logRange <span class="sc">~</span> Migration, <span class="at">data =</span> d)</span>
 <span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rangM1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -395,7 +394,7 @@ Migration1  -2.51702    0.09380 -26.834  &lt; 2e-16 ***
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 2.785 on 10934 degrees of freedom
-  (49 observations deleted due to missingness)
+  (72 observations deleted due to missingness)
 Multiple R-squared:  0.0869,    Adjusted R-squared:  0.08674 
 F-statistic: 520.3 on 2 and 10934 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
@@ -421,7 +420,7 @@ Migration1  -1.78469    0.08606 -20.737  &lt; 2e-16 ***
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 2.785 on 10934 degrees of freedom
-  (49 observations deleted due to missingness)
+  (72 observations deleted due to missingness)
 Multiple R-squared:  0.0869,    Adjusted R-squared:  0.08674 
 F-statistic: 520.3 on 2 and 10934 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
@@ -446,11 +445,11 @@ Migration3   2.51702    0.09380   26.83   &lt;2e-16 ***
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 2.785 on 10934 degrees of freedom
-  (49 observations deleted due to missingness)
+  (72 observations deleted due to missingness)
 Multiple R-squared:  0.0869,    Adjusted R-squared:  0.08674 
 F-statistic: 520.3 on 2 and 10934 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Relevel back to og</span></span>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Relevel back to original</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>Migration <span class="ot">&lt;-</span> <span class="fu">relevel</span>(d<span class="sc">$</span>Migration, <span class="at">ref =</span> <span class="dv">1</span>)</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Tukey HSD</span></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>rangM_aov <span class="ot">&lt;-</span> <span class="fu">aov</span>(logRange <span class="sc">~</span> Migration, <span class="at">data =</span> d)</span>
@@ -485,31 +484,13 @@ $Migration
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>dp <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Order1 <span class="sc">==</span> <span class="st">"Passeriformes"</span>)</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>Paov1 <span class="ot">&lt;-</span> <span class="fu">aov</span>(blcRes <span class="sc">~</span> Primary.Lifestyle, <span class="at">data =</span> dp)</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Paov1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                    Df Sum Sq Mean Sq F value Pr(&gt;F)    
-Primary.Lifestyle    3    171   57.01   255.3 &lt;2e-16 ***
-Residuals         6602   1474    0.22                   
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>Paov2 <span class="ot">&lt;-</span> <span class="fu">aov</span>(blcRes <span class="sc">~</span> Trophic.Level, <span class="at">data =</span> dp)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Paov2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                Df Sum Sq Mean Sq F value Pr(&gt;F)    
-Trophic.Level    2  101.3   50.66   216.7 &lt;2e-16 ***
-Residuals     6603 1544.1    0.23                   
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Primary.Lifestyle, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Rel Beak Length:Primary Lifestyle"</span>)</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Trophic.Level, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Rel Beak Length:Trophic Level"</span>)</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(p1, p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Primary.Lifestyle, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Rel Beak Length:Primary Lifestyle"</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Trophic.Level, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Rel Beak Length:Trophic Level"</span>)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(p1, p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -517,12 +498,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>dp <span class="ot">&lt;-</span> dp <span class="sc">|&gt;</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PL.TL =</span> <span class="fu">paste</span>(Primary.Lifestyle, Trophic.Level))</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> PL.TL, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Rel Beak Length: Lifestyle &amp; Trophic Level"</span>)</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>dp <span class="ot">&lt;-</span> dp <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">PL.TL =</span> <span class="fu">paste</span>(Primary.Lifestyle, Trophic.Level))</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> PL.TL, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Rel Beak Length: Lifestyle &amp; Trophic Level"</span>) <span class="sc">+</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -530,32 +512,34 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>Plm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(blcRes <span class="sc">~</span> Primary.Lifestyle, <span class="at">data =</span> dp)</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Plm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Primary Lifestyle and Relative beak length</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>Plm1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(blcRes <span class="sc">~</span> Primary.Lifestyle, <span class="at">data =</span> dp)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Plm1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
 lm(formula = blcRes ~ Primary.Lifestyle, data = dp)
 
 Residuals:
-     Min       1Q   Median       3Q      Max 
--2.56298 -0.25178  0.02714  0.28684  1.86019 
+    Min      1Q  Median      3Q     Max 
+-0.6314 -0.1380 -0.0172  0.1118  1.2241 
 
 Coefficients:
                              Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)                   0.37666    0.04750   7.930 2.55e-15 ***
-Primary.LifestyleGeneralist  -0.45137    0.05073  -8.898  &lt; 2e-16 ***
-Primary.LifestyleInsessorial -0.71753    0.04800 -14.949  &lt; 2e-16 ***
-Primary.LifestyleTerrestrial -0.37694    0.04947  -7.619 2.91e-14 ***
+(Intercept)                  -0.34950    0.02158  -16.19   &lt;2e-16 ***
+Primary.LifestyleGeneralist   0.27926    0.02306   12.11   &lt;2e-16 ***
+Primary.LifestyleInsessorial  0.35342    0.02181   16.20   &lt;2e-16 ***
+Primary.LifestyleTerrestrial  0.27924    0.02249   12.42   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.4726 on 6602 degrees of freedom
-Multiple R-squared:  0.1039,    Adjusted R-squared:  0.1035 
-F-statistic: 255.3 on 3 and 6602 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 0.2158 on 6610 degrees of freedom
+Multiple R-squared:  0.05581,   Adjusted R-squared:  0.05538 
+F-statistic: 130.2 on 3 and 6610 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>Plm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(blcRes <span class="sc">~</span> Trophic.Level, <span class="at">data =</span> dp)</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Plm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Trophic Level and Relative Beak Length</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>Plm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(blcRes <span class="sc">~</span> Trophic.Level, <span class="at">data =</span> dp)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Plm2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -563,19 +547,19 @@ lm(formula = blcRes ~ Trophic.Level, data = dp)
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--2.70132 -0.24125  0.04143  0.30882  1.87334 
+-0.67045 -0.13692 -0.02063  0.11129  1.23116 
 
 Coefficients:
                         Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)            -0.333894   0.007825 -42.669   &lt;2e-16 ***
-Trophic.LevelHerbivore  0.318765   0.015541  20.511   &lt;2e-16 ***
-Trophic.LevelOmnivore   0.131368   0.014771   8.894   &lt;2e-16 ***
+(Intercept)            -0.003170   0.003501  -0.906  0.36518    
+Trophic.LevelHerbivore -0.118713   0.006956 -17.066  &lt; 2e-16 ***
+Trophic.LevelOmnivore   0.017902   0.006606   2.710  0.00675 ** 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.4836 on 6603 degrees of freedom
-Multiple R-squared:  0.06158,   Adjusted R-squared:  0.0613 
-F-statistic: 216.6 on 2 and 6603 DF,  p-value: &lt; 2.2e-16</code></pre>
+Residual standard error: 0.2165 on 6611 degrees of freedom
+Multiple R-squared:  0.05001,   Adjusted R-squared:  0.04972 
+F-statistic:   174 on 2 and 6611 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </section>
@@ -583,13 +567,13 @@ F-statistic: 216.6 on 2 and 6603 DF,  p-value: &lt; 2.2e-16</code></pre>
 <h3 class="anchored" data-anchor-id="step-5">Step 5</h3>
 <p>Now, I will run a two-factor anova to see how these two predictors associate with relative beak length. Based on the output, I would conclude that differences in relative beak length can be explained by each species primary lifestyle and trophic level.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>P2wayaov <span class="ot">&lt;-</span> <span class="fu">aov</span>(<span class="at">data =</span> dp, blcRes <span class="sc">~</span> Primary.Lifestyle <span class="sc">+</span> Trophic.Level)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(P2wayaov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>P2wayaov <span class="ot">&lt;-</span> <span class="fu">aov</span>(<span class="at">data =</span> dp, blcRes <span class="sc">~</span> Primary.Lifestyle <span class="sc">+</span> Trophic.Level)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(P2wayaov)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                    Df Sum Sq Mean Sq F value Pr(&gt;F)    
-Primary.Lifestyle    3  171.0   57.01   275.7 &lt;2e-16 ***
-Trophic.Level        2  109.8   54.90   265.5 &lt;2e-16 ***
-Residuals         6600 1364.6    0.21                   
+Primary.Lifestyle    3  18.20   6.067   138.1 &lt;2e-16 ***
+Trophic.Level        2  17.68   8.838   201.2 &lt;2e-16 ***
+Residuals         6608 290.24   0.044                   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -599,15 +583,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <h3 class="anchored" data-anchor-id="step-6">Step 6</h3>
 <p>Now I will run another two-factor anova but I will add an interaction term to see how the interaction of lifestyle and trophic level explains beak length. Based on the output, the interaction of these two variables has a significant effect on relative beak length.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>PaovInteraction <span class="ot">&lt;-</span> <span class="fu">aov</span>(<span class="at">data =</span> dp, </span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>                       blcRes <span class="sc">~</span> Primary.Lifestyle <span class="sc">+</span> Trophic.Level <span class="sc">+</span> Primary.Lifestyle<span class="sc">:</span>Trophic.Level)</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(PaovInteraction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>PaovInteraction <span class="ot">&lt;-</span> <span class="fu">aov</span>(<span class="at">data =</span> dp, </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>                       blcRes <span class="sc">~</span> Primary.Lifestyle <span class="sc">+</span> Trophic.Level <span class="sc">+</span> Primary.Lifestyle<span class="sc">:</span>Trophic.Level)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(PaovInteraction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                                  Df Sum Sq Mean Sq F value   Pr(&gt;F)    
-Primary.Lifestyle                  3  171.0   57.01  277.31  &lt; 2e-16 ***
-Trophic.Level                      2  109.8   54.90  267.02  &lt; 2e-16 ***
-Primary.Lifestyle:Trophic.Level    4    8.6    2.15   10.44 1.98e-08 ***
-Residuals                       6596 1356.0    0.21                     
+<pre><code>                                  Df Sum Sq Mean Sq F value Pr(&gt;F)    
+Primary.Lifestyle                  3  18.20   6.067  142.15 &lt;2e-16 ***
+Trophic.Level                      2  17.68   8.838  207.11 &lt;2e-16 ***
+Primary.Lifestyle:Trophic.Level    4   8.41   2.102   49.26 &lt;2e-16 ***
+Residuals                       6604 281.83   0.043                   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -617,8 +601,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <h3 class="anchored" data-anchor-id="step-7">Step 7</h3>
 <p>Now I will create an interaction plot to visualize the interaction between the predictors.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">interaction.plot</span>(<span class="at">x.factor=</span> dp<span class="sc">$</span>Primary.Lifestyle, <span class="at">xlab =</span> <span class="st">"Primary Lifestyle"</span>, <span class="at">trace.factor =</span> dp<span class="sc">$</span>Trophic.Level,</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">trace.label =</span> <span class="st">"Trophic Level"</span>, <span class="at">fun =</span> base<span class="sc">::</span>mean, <span class="at">response =</span> dp<span class="sc">$</span>blcRes, <span class="at">ylab =</span> <span class="st">"Relative Beak Length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">interaction.plot</span>(<span class="at">x.factor=</span> dp<span class="sc">$</span>Primary.Lifestyle, <span class="at">xlab =</span> <span class="st">"Primary Lifestyle"</span>, <span class="at">trace.factor =</span> dp<span class="sc">$</span>Trophic.Level,</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">trace.label =</span> <span class="st">"Trophic Level"</span>, <span class="at">fun =</span> base<span class="sc">::</span>mean, <span class="at">response =</span> dp<span class="sc">$</span>blcRes, <span class="at">ylab =</span> <span class="st">"Relative Beak Length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -630,7 +614,83 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 <section id="step-8" class="level3">
 <h3 class="anchored" data-anchor-id="step-8">Step 8</h3>
-<p>As a final step, I will determine if the variances across the groups in the different models are roughly equal.</p>
+<p>As a final step, I will determine if the variances across the group levels in the different models are roughly equal. We ran three main models in this challenge, log(Range Size) ~ Migration, relative beak length ~ Primary Lifestyle, and relative beak length ~ Trophic Level. Each of these three factors (Migration, Primary Lifestyle, and Trophic Level) have different levels to them. Here I will determine if the variances between the levels in each group is roughly equal or not to make sure out modeling method is appropriate. Then we will look at the distribution of the residuals of each model to make sure they follow a normal distribution. I plotted each level of each category first as violin plots to look at their distribution. I then calculated the standard deviation of either range of relative beak length for each category before testing for equal variances. After these calculations, I plotted the histograms of the residuals. Based on the comparisons of the standard deviations, all groups show equal variance as that have a value of less than 2. Additionally, upon visual inspection, the data appears to be normally distributed</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Migration and range size</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>rM <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data  =</span> d <span class="sc">|&gt;</span> <span class="fu">drop_na</span>(Migration), <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Migration, <span class="at">y =</span> logRange)) <span class="sc">+</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>() <span class="sc">+</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"All Species, Geographic Range and Migration"</span>)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>mig <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(Migration) <span class="sc">|&gt;</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(logRange) <span class="sc">|&gt;</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Migration) <span class="sc">|&gt;</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">sdRange =</span> <span class="fu">sd</span>(logRange))</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">max</span>(mig<span class="sc">$</span>sdRange)<span class="sc">/</span><span class="fu">min</span>(mig<span class="sc">$</span>sdRange)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a><span class="co">#Rel beak length and Primary Lifestyle</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>bPL <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Primary.Lifestyle, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>() <span class="sc">+</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Passeriformes, Relative Beak Length and Primary Lifestyle"</span>) <span class="sc">+</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>life <span class="ot">&lt;-</span> dp <span class="sc">|&gt;</span></span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(Primary.Lifestyle) <span class="sc">|&gt;</span></span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Primary.Lifestyle) <span class="sc">|&gt;</span></span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">sdBeak =</span> <span class="fu">sd</span>(blcRes))</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">max</span>(life<span class="sc">$</span>sdBeak)<span class="sc">/</span><span class="fu">min</span>(life<span class="sc">$</span>sdBeak)</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a><span class="co">#Rel beak length and Trophic Level</span></span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>bTL <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> dp, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> Trophic.Level, <span class="at">y =</span> blcRes)) <span class="sc">+</span></span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>() <span class="sc">+</span></span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Passeriformes, Relative Beak Length and Trophic Level"</span>) <span class="sc">+</span></span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>troph <span class="ot">&lt;-</span> dp <span class="sc">|&gt;</span></span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(Trophic.Level) <span class="sc">|&gt;</span></span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Trophic.Level) <span class="sc">|&gt;</span></span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">sdBeak =</span> <span class="fu">sd</span>(blcRes))</span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a>t <span class="ot">&lt;-</span> <span class="fu">max</span>(troph<span class="sc">$</span>sdBeak)<span class="sc">/</span><span class="fu">min</span>(troph<span class="sc">$</span>sdBeak)</span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(rM, bPL, bTL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Migration Varience:"</span>, s, <span class="st">"; Primary Lifestyle Varience:"</span>, p, <span class="st">"; Trophic Level Varience:"</span>, t))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Migration Varience: 1.33276434989884 ; Primary Lifestyle Varience: 1.24393292593595 ; Trophic Level Varience: 1.33619408884105"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Plots of residules</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Migrarion and range size</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(rangM1<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Lifestyle and beak size</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(Plm1<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10_files/figure-html/unnamed-chunk-13-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Trophic level and beak size</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(Plm2<span class="sc">$</span>residuals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10_files/figure-html/unnamed-chunk-13-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 </section>
 </section>

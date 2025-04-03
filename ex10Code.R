@@ -148,6 +148,23 @@ interaction.plot(x.factor= dp$Primary.Lifestyle, xlab = "Primary Lifestyle", tra
                  trace.label = "Trophic Level", fun = base::mean, response = dp$blcRes, ylab = "Relative Beak Length")
 
 #Step 8, comparing largest and smallest within-grouping level sd
-#useing for "equal" variances
-Plm1$residuals
-Plm1var <- max(Plm1$residuals)/min(Plm1$residuals)
+#useing for "equal" variances, plots first
+#log(Range) and migration
+rM <- ggplot(data  = d |> drop_na(Migration), mapping = aes(x = Migration, y = logRange)) +
+               geom_boxplot()
+
+
+#Rel beak length and Primary Lifestyle
+bPL <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
+                geom_boxplot()
+
+
+
+
+#Rel beak length and Trophic Level
+
+
+
+
+
+

@@ -20,7 +20,6 @@ library(ggplot2)
 library(cowplot)
 library(infer)
 library(skimr)
-#Still using bird data
 f <- "https://raw.githubusercontent.com/difiore/ada-datasets/refs/heads/main/AVONETdataset1.csv"
 d <- read_csv(f, col_names = TRUE)
 
@@ -174,6 +173,7 @@ Migration categories 2 and 3 both differ significantly from the reference level 
 #| warning: false
 d <- d |>
   mutate(logRange = log(Range.Size))
+#Migration and Geographic range
 rangM1 <- lm(logRange ~ Migration, data = d)
 summary(rangM1)
 
@@ -186,7 +186,7 @@ d$Migration <- relevel(d$Migration, ref = 3)
 rangM3 <- lm(logRange ~ Migration, data = d)
 summary(rangM3)
 
-#Relevel back to og
+#Relevel back to original
 d$Migration <- relevel(d$Migration, ref = 1)
 #Tukey HSD
 rangM_aov <- aov(logRange ~ Migration, data = d)
@@ -217,11 +217,13 @@ dp <- dp |>
   mutate(PL.TL = paste(Primary.Lifestyle, Trophic.Level))
 p3 <- ggplot(data = dp, mapping = aes(x = PL.TL, y = blcRes)) +
   geom_boxplot() +
-  ggtitle("Rel Beak Length: Lifestyle & Trophic Level")
+  ggtitle("Rel Beak Length: Lifestyle & Trophic Level") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p3
-
+#Primary Lifestyle and Relative beak length
 Plm1 <- lm(blcRes ~ Primary.Lifestyle, data = dp)
 summary(Plm1)
+#Trophic Level and Relative Beak Length
 Plm2 <- lm(blcRes ~ Trophic.Level, data = dp)
 summary(Plm2)
 ```
@@ -262,10 +264,53 @@ interaction.plot(x.factor= dp$Primary.Lifestyle, xlab = "Primary Lifestyle", tra
 
 ### Step 8
 
-As a final step, I will determine if the variances across the groups in the different models are roughly equal.
+As a final step, I will determine if the variances across the group levels in the different models are roughly equal. We ran three main models in this challenge, log(Range Size) \~ Migration, relative beak length \~ Primary Lifestyle, and relative beak length \~ Trophic Level. Each of these three factors (Migration, Primary Lifestyle, and Trophic Level) have different levels to them. Here I will determine if the variances between the levels in each group is roughly equal or not to make sure out modeling method is appropriate. Then we will look at the distribution of the residuals of each model to make sure they follow a normal distribution. I plotted each level of each category first as violin plots to look at their distribution. I then calculated the standard deviation of either range of relative beak length for each category before testing for equal variances. After these calculations, I plotted the histograms of the residuals. Based on the comparisons of the standard deviations, all groups show equal variance as that have a value of less than 2. Additionally, upon visual inspection, the data appears to be normally distributed
 
 ```{r}
 #| message: false
 #| warning: false
+#Migration and range size
+rM <- ggplot(data  = d |> drop_na(Migration), mapping = aes(x = Migration, y = logRange)) +
+  geom_violin() +
+  ggtitle("All Species, Geographic Range and Migration")
+mig <- d |>
+  drop_na(Migration) |>
+  drop_na(logRange) |>
+  group_by(Migration) |>
+  summarize(sdRange = sd(logRange))
+s <- max(mig$sdRange)/min(mig$sdRange)
 
+#Rel beak length and Primary Lifestyle
+bPL <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
+  geom_violin() +
+  ggtitle("Passeriformes, Relative Beak Length and Primary Lifestyle") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+life <- dp |>
+  drop_na(Primary.Lifestyle) |>
+  group_by(Primary.Lifestyle) |>
+  summarize(sdBeak = sd(blcRes))
+p <- max(life$sdBeak)/min(life$sdBeak)
+
+#Rel beak length and Trophic Level
+bTL <- ggplot(data = dp, mapping = aes(x = Trophic.Level, y = blcRes)) +
+  geom_violin() +
+  ggtitle("Passeriformes, Relative Beak Length and Trophic Level") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+troph <- dp |>
+  drop_na(Trophic.Level) |>
+  group_by(Trophic.Level) |>
+  summarize(sdBeak = sd(blcRes))
+t <- max(troph$sdBeak)/min(troph$sdBeak)
+
+
+plot_grid(rM, bPL, bTL)
+print(paste("Migration Varience:", s, "; Primary Lifestyle Varience:", p, "; Trophic Level Varience:", t))
+
+#Plots of residules
+#Migrarion and range size
+hist(rangM1$residuals)
+#Lifestyle and beak size
+hist(Plm1$residuals)
+#Trophic level and beak size
+hist(Plm2$residuals)
 ```
