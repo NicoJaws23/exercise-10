@@ -112,7 +112,8 @@ rangeM_THSD <- TukeyHSD(rangM_aov, which = "Migration", conf.level = 0.95)
 
 #Step 4, Passeriformes analysis
 dp <- d |>
-  filter(Order1 == "Passeriformes")
+  filter(Order1 == "Passeriformes") |>
+  mutate(Trophic.Level = as.factor(Trophic.Level))
 
 p1 <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
   geom_boxplot() +
@@ -151,20 +152,45 @@ interaction.plot(x.factor= dp$Primary.Lifestyle, xlab = "Primary Lifestyle", tra
 #useing for "equal" variances, plots first
 #log(Range) and migration
 rM <- ggplot(data  = d |> drop_na(Migration), mapping = aes(x = Migration, y = logRange)) +
-               geom_boxplot()
-
+  geom_violin() +
+  ggtitle("All Species, Geographic Range and Migration")
+mig <- d |>
+  drop_na(Migration) |>
+  drop_na(logRange) |>
+  group_by(Migration) |>
+  summarize(sdRange = sd(logRange))
+s <- max(mig$sdRange)/min(mig$sdRange)
 
 #Rel beak length and Primary Lifestyle
 bPL <- ggplot(data = dp, mapping = aes(x = Primary.Lifestyle, y = blcRes)) +
-                geom_boxplot()
-
-
-
+  geom_violin() +
+  ggtitle("Passeriformes, Relative Beak Length and Primary Lifestyle") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+life <- dp |>
+  drop_na(Primary.Lifestyle) |>
+  group_by(Primary.Lifestyle) |>
+  summarize(sdBeak = sd(blcRes))
+p <- max(life$sdBeak)/min(life$sdBeak)
 
 #Rel beak length and Trophic Level
+bTL <- ggplot(data = dp, mapping = aes(x = Trophic.Level, y = blcRes)) +
+  geom_violin() +
+  ggtitle("Passeriformes, Relative Beak Length and Trophic Level") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+troph <- dp |>
+  drop_na(Trophic.Level) |>
+  group_by(Trophic.Level) |>
+  summarize(sdBeak = sd(blcRes))
+t <- max(troph$sdBeak)/min(troph$sdBeak)
 
 
+plot_grid(rM, bPL, bTL)
+print(paste("Migration Varience:", s, "; Primary Lifestyle Varience:", p, "; Trophic Level Varience:", t))
 
-
-
-
+#Plots of residules
+#Migrarion and range size
+hist(rangM1$residuals)
+#Lifestyle and beak size
+hist(Plm1$residuals)
+#Trophic level and beak size
+hist(Plm2$residuals)
