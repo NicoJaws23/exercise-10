@@ -24,7 +24,7 @@ f <- "https://raw.githubusercontent.com/difiore/ada-datasets/refs/heads/main/AVO
 d <- read_csv(f, col_names = TRUE)
 
 d <- d |>
-  select(Species1, Family1, Order1, Beak.Length_Culmen, Beak.Width, Beak.Depth, 
+  select(Species1, Family1, Order1, Beak.Length_Culmen, Beak.Width, Beak.Depth,
          Tarsus.Length, Wing.Length, Tail.Length, Mass, Habitat, Migration, Trophic.Level, 
          Trophic.Niche, Min.Latitude, Max.Latitude, Centroid.Latitude, Primary.Lifestyle, Range.Size) |>
   mutate(Migration = as.factor(Migration)) |>
@@ -151,11 +151,13 @@ Next, I will make some boxplots. The first will plot relative tarsus length in r
 #| warning: false
 a <- ggplot(data = d, mapping = aes(x = Primary.Lifestyle, y = tlRes)) +
   geom_boxplot() +
-  ggtitle("Relative Tarsus Length and Primary Lifestyle")
+  ggtitle("Relative Tarsus Length and Primary Lifestyle") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 b <- ggplot(data = d, mapping = aes(x = Trophic.Niche, y = blcRes)) +
   geom_boxplot() +
-  ggtitle("Relative Beak Length and Trophic Niche")
+  ggtitle("Relative Beak Length and Trophic Niche") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_grid(a, b)
 ```
